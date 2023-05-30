@@ -1,0 +1,34 @@
+TODO
+
+1. Login 
+  - Login = ok 
+
+2. Register
+  - Register  = ok
+
+3. User
+  - Get All = ok
+  - Delete = ok 
+  - Get by ID = ok
+  - Add = ok
+
+4. Country 
+  - Get All = ok
+  - Get by ID = ok
+  - Add = ok || Auth = ok
+  - Edit = ok || Auth = ok
+  - Delete = ok || Auth = ok
+
+5. Trip
+  - Get All = ok 
+  - Get by ID = ok
+  - Add = ok || Auth = ok
+  - Edit = ok || Auth = ok 
+  - Delete = ok || Auth = ok
+
+6. Transaction 
+  - Add = ok || Auth = 
+  - Get All = ok 
+  - Get by ID = ok 
+  - Edit = ok || Auth = 
+  - Ddelete = ok
