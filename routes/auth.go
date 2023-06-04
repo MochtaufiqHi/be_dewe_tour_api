@@ -2,6 +2,7 @@ package routes
 
 import (
 	"dumbmerch/handlers"
+	"dumbmerch/pkg/middleware"
 	"dumbmerch/pkg/mysql"
 	"dumbmerch/repository"
 
@@ -14,4 +15,5 @@ func AuthRoutes(e *echo.Group) {
 
 	e.POST("/register", h.Register)
 	e.POST("/login", h.Login)
+	e.GET("check-auth", middleware.Auth(h.CheckAuth))
 }

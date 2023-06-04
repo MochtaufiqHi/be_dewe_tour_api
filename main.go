@@ -2,12 +2,14 @@ package main
 
 import (
 	"dumbmerch/database"
+	// "dumbmerch/pkg/middleware"
 	"dumbmerch/pkg/mysql"
 	"dumbmerch/routes"
 	"fmt"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -17,6 +19,12 @@ func main() {
 	}
 
 	e := echo.New()
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{echo.GET, echo.POST, echo.PATCH, echo.DELETE},
+		AllowHeaders:     []string{"X-Requested-With", "Content-Type", "Authorization"},
+	}))
 
 	// connect database
 	mysql.DatabaseInit()
