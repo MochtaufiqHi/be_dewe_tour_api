@@ -50,6 +50,7 @@ func (h *handlersAuth) Register(c echo.Context) error {
 		Password: password,
 		Phone:    request.Phone,
 		Address:  request.Address,
+		Role:     "user",
 	}
 	fmt.Println(user)
 
@@ -111,6 +112,9 @@ func (h *handlersAuth) Login(c echo.Context) error {
 		Role:     user.Role,
 		Address:  user.Address,
 		Phone:    user.Phone,
+		ID:       user.ID,
+		// TransactionID: user.TransactionID,
+		// Transaction: user.Transaction,
 
 		// Password: user.Password,
 		Token: token,

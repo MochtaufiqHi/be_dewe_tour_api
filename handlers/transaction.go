@@ -149,6 +149,20 @@ func (h *transactionHandlers) DeleteTransaction(c echo.Context) error {
 
 }
 
+func (h *transactionHandlers) GetTransactionByUser(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	// var transaction models.Transaction
+	transaction, err := h.TransactionRepository.GetTransactionByUser(id)
+
+	fmt.Println(transaction)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: transaction})
+}
+
 func convertResponseTransaction(u models.Transaction) trandto.TransactionResponse {
 	return trandto.TransactionResponse{
 		ID:         u.ID,
@@ -157,7 +171,7 @@ func convertResponseTransaction(u models.Transaction) trandto.TransactionRespons
 		Status:     u.Status,
 		Attachment: u.Attachment,
 		TripID:     u.TripID,
-		Trip:       models.Trip(u.Trip),
+		Trip:       models.TripResponse(u.Trip),
 		User:       models.User{},
 	}
 }

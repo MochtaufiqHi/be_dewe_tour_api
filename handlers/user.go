@@ -91,6 +91,7 @@ func convertResponse(u models.User) userdto.UserResponse {
 		Password: u.Password,
 		Phone:    u.Phone,
 		Address:  u.Address,
+		// Transaction: models.TransactionResponse,
 		// Transaction: models.Transaction{},
 
 	}

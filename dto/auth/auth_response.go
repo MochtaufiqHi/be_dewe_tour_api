@@ -7,6 +7,7 @@ type AuthResponse struct {
 }
 
 type LoginResponse struct {
+	ID       int    `json:"id"`
 	Fullname string `json:"name"`
 	Email    string `json:"email"`
 	Role     string `json:"role"`

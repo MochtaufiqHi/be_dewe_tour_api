@@ -14,6 +14,7 @@ type TransactionRepository interface {
 	DeleteTransaction(transaction models.Transaction, ID int) (models.Transaction, error)
 	GetTripByID(ID int) (models.TripResponse, error)
 	GetUserByID(ID int) (models.User, error)
+	GetTransactionByUser(ID int) ([]models.Transaction, error)
 }
 
 func RepositoryTransaction(db *gorm.DB) *repository {
@@ -33,9 +34,16 @@ func (r *repository) CreateTransaction(transaction models.Transaction) (models.T
 	return transaction, err
 }
 
+func (r *repository) GetTransactionByUser(ID int) ([]models.Transaction, error) {
+	var transaction []models.Transaction
+	err := r.db.Where("id =?", ID).Preload("User").Preload("Trip.Country").First(&transaction, ID).Error
+
+	return transaction, err
+}
+
 func (r *repository) GetTransaction(ID int) (models.Transaction, error) {
 	var transaction models.Transaction
-	err := r.db.Preload("Trip.Country").First(&transaction, ID).Error
+	err := r.db.Preload("User").Preload("Trip.Country").First(&transaction, ID).Error
 
 	return transaction, err
 }
