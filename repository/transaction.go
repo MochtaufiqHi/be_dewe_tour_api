@@ -36,7 +36,7 @@ func (r *repository) CreateTransaction(transaction models.Transaction) (models.T
 
 func (r *repository) GetTransactionByUser(ID int) ([]models.Transaction, error) {
 	var transaction []models.Transaction
-	err := r.db.Where("id =?", ID).Preload("User").Preload("Trip.Country").First(&transaction, ID).Error
+	err := r.db.Where("user_id =?", ID).Preload("User").Preload("Trip.Country").Find(&transaction).Error
 
 	return transaction, err
 }

@@ -7,7 +7,6 @@ import (
 	"dumbmerch/pkg/bcrypt"
 	jwtToken "dumbmerch/pkg/jwt"
 	"dumbmerch/repository"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -31,7 +30,7 @@ func (h *handlersAuth) Register(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: "binding gagal"})
 	}
 
-	fmt.Println(request)
+	// fmt.Println(request)
 
 	password, err := bcrypt.HashingPassword(request.Password)
 	if err != nil {
@@ -52,7 +51,7 @@ func (h *handlersAuth) Register(c echo.Context) error {
 		Address:  request.Address,
 		Role:     "user",
 	}
-	fmt.Println(user)
+	// fmt.Println(user)
 
 	data, err := h.AuthRepository.Register(user)
 	if err != nil {
@@ -66,7 +65,7 @@ func (h *handlersAuth) Register(c echo.Context) error {
 		//Token: token,
 	}
 
-	fmt.Println(registerResponse)
+	// fmt.Println(registerResponse)
 	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: registerResponse})
 }
 
@@ -81,7 +80,7 @@ func (h *handlersAuth) Login(c echo.Context) error {
 		Password: request.Password,
 	}
 
-	fmt.Println(user)
+	// fmt.Println(user)
 	//check mail
 	user, err := h.AuthRepository.Login(user.Email)
 	if err != nil {

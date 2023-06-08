@@ -90,7 +90,7 @@ func (h *tripHandlers) CreateTrip(c echo.Context) error {
 	// userId := userLogin.(jwt.MapClaims)["id"].(float64)
 
 	idCountry, _ := h.TripRepository.GetCountryByID(request.CountryID)
-	fmt.Println(idCountry)
+	// fmt.Println(idCountry)
 
 	trip := models.Trip{
 		Title:     request.Title,

@@ -39,7 +39,7 @@ func (h *transactionHandlers) GetTransaction(c echo.Context) error {
 	var transaction models.Transaction
 	transaction, err := h.TransactionRepository.GetTransaction(id)
 
-	fmt.Println(transaction)
+	// fmt.Println(transaction)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}
@@ -121,7 +121,7 @@ func (h *transactionHandlers) UpdateTransaction(c echo.Context) error {
 	transaction.UserID = request.UserID
 	transaction.User = user
 
-	fmt.Println(user)
+	// fmt.Println(user)
 	// fmt.Println(trip)
 	// fmt.Println(transaction.Trip)
 
@@ -172,7 +172,7 @@ func convertResponseTransaction(u models.Transaction) trandto.TransactionRespons
 		Attachment: u.Attachment,
 		TripID:     u.TripID,
 		Trip:       models.TripResponse(u.Trip),
-		User:       models.User{},
+		User:       models.User(u.User),
 	}
 }
 
