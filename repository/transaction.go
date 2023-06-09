@@ -10,7 +10,8 @@ type TransactionRepository interface {
 	GetAllTransaction() ([]models.Transaction, error)
 	CreateTransaction(transaction models.Transaction) (models.Transaction, error)
 	GetTransaction(ID int) (models.Transaction, error)
-	UpdateTransaction(transaction models.Transaction) (models.Transaction, error)
+	// UpdateTransaction(transaction models.Transaction) (models.Transaction, error)
+	UpdateTransaction(status string, orderId int) (models.Transaction, error)
 	DeleteTransaction(transaction models.Transaction, ID int) (models.Transaction, error)
 	GetTripByID(ID int) (models.TripResponse, error)
 	GetUserByID(ID int) (models.User, error)
@@ -48,9 +49,25 @@ func (r *repository) GetTransaction(ID int) (models.Transaction, error) {
 	return transaction, err
 }
 
-func (r *repository) UpdateTransaction(transaction models.Transaction) (models.Transaction, error) {
-	err := r.db.Preload("Trip.Country").Save(&transaction).Error
+// func (r *repository) UpdateTransaction(transaction models.Transaction) (models.Transaction, error) {
+// 	err := r.db.Preload("Trip.Country").Save(&transaction).Error
 
+// 	return transaction, err
+// }
+
+func (r *repository) UpdateTransaction(status string, orderId int) (models.Transaction, error) {
+	var transaction models.Transaction
+	r.db.Preload("User").Preload("Trip.Country").First(&transaction, orderId)
+
+	if status != transaction.Status && status == "success" {
+		var trip models.Trip
+		r.db.First(&trip, transaction.Trip.ID)
+		trip.Quota = trip.Quota - 1
+		r.db.Save(&trip)
+	}
+
+	transaction.Status = status
+	err := r.db.Save(&transaction).Error
 	return transaction, err
 }
 
