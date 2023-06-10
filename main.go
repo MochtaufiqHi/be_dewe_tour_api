@@ -2,6 +2,8 @@ package main
 
 import (
 	"dumbmerch/database"
+	"os"
+
 	// "dumbmerch/pkg/middleware"
 	"dumbmerch/pkg/mysql"
 	"dumbmerch/routes"
@@ -13,17 +15,14 @@ import (
 )
 
 func main() {
-	errEnv := godotenv.Load()
-	if errEnv != nil {
-		panic("Failed to load env file")
-	}
+	godotenv.Load()
 
 	e := echo.New()
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{echo.GET, echo.POST, echo.PATCH, echo.DELETE},
-		AllowHeaders:     []string{"X-Requested-With", "Content-Type", "Authorization"},
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{echo.GET, echo.POST, echo.PATCH, echo.DELETE},
+		AllowHeaders: []string{"X-Requested-With", "Content-Type", "Authorization"},
 	}))
 
 	// connect database
@@ -36,6 +35,8 @@ func main() {
 	// uploads can be used another client
 	e.Static("/uploads", "./uploads")
 
+	PORT := os.Getenv("PORT")
+
 	fmt.Println("Server running localhost:5000")
-	e.Logger.Fatal(e.Start("localhost:5000"))
+	e.Logger.Fatal(e.Start(":" + PORT))
 }
