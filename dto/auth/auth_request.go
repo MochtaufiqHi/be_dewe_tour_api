@@ -6,6 +6,7 @@ type AuthRequest struct {
 	Password string `json:"password" validate:"required"`
 	Phone    string `json:"phone" validate:"required"`
 	Address  string `json:"address" validate:"required"`
+	// Transaction []TransactionResponse `json:"transaction"`
 }
 
 type LoginRequest struct {

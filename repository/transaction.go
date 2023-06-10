@@ -10,10 +10,12 @@ type TransactionRepository interface {
 	GetAllTransaction() ([]models.Transaction, error)
 	CreateTransaction(transaction models.Transaction) (models.Transaction, error)
 	GetTransaction(ID int) (models.Transaction, error)
-	UpdateTransaction(transaction models.Transaction) (models.Transaction, error)
+	// UpdateTransaction(transaction models.Transaction) (models.Transaction, error)
+	UpdateTransaction(status string, orderId int) (models.Transaction, error)
 	DeleteTransaction(transaction models.Transaction, ID int) (models.Transaction, error)
 	GetTripByID(ID int) (models.TripResponse, error)
 	GetUserByID(ID int) (models.User, error)
+	GetTransactionByUser(ID int) ([]models.Transaction, error)
 }
 
 func RepositoryTransaction(db *gorm.DB) *repository {
@@ -33,16 +35,41 @@ func (r *repository) CreateTransaction(transaction models.Transaction) (models.T
 	return transaction, err
 }
 
-func (r *repository) GetTransaction(ID int) (models.Transaction, error) {
-	var transaction models.Transaction
-	err := r.db.Preload("Trip.Country").First(&transaction, ID).Error
+func (r *repository) GetTransactionByUser(ID int) ([]models.Transaction, error) {
+	var transaction []models.Transaction
+	err := r.db.Where("user_id =?", ID).Preload("User").Preload("Trip.Country").Find(&transaction).Error
 
 	return transaction, err
 }
 
-func (r *repository) UpdateTransaction(transaction models.Transaction) (models.Transaction, error) {
-	err := r.db.Preload("Trip.Country").Save(&transaction).Error
+func (r *repository) GetTransaction(ID int) (models.Transaction, error) {
+	var transaction models.Transaction
+	err := r.db.Preload("User").Preload("Trip.Country").First(&transaction, ID).Error
 
+	return transaction, err
+}
+
+// func (r *repository) UpdateTransaction(transaction models.Transaction) (models.Transaction, error) {
+// 	err := r.db.Preload("Trip.Country").Save(&transaction).Error
+
+// 	return transaction, err
+// }
+
+func (r *repository) UpdateTransaction(status string, orderId int) (models.Transaction, error) {
+	var transaction models.Transaction
+	r.db.Preload("User").Preload("Trip.Country").First(&transaction, orderId)
+
+	if status != transaction.Status && status == "success" {
+		var trip models.Trip
+		r.db.First(&trip, transaction.Trip.ID)
+		trip.Quota = trip.Quota - transaction.CounterQty
+		r.db.Save(&trip)
+	}
+
+	// fmt.Println("ini transaction counter qty", transaction.CounterQty)
+
+	transaction.Status = status
+	err := r.db.Save(&transaction).Error
 	return transaction, err
 }
 

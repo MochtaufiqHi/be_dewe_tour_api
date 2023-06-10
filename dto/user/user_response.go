@@ -10,6 +10,7 @@ type UserResponse struct {
 	Phone       string             `json:"phone"`
 	Address     string             `json:"address"`
 	Transaction models.Transaction `json:"transaction"`
+	Trip        models.Trip        `json:"trip"`
 }
 
 type UserDeleteResponse struct {

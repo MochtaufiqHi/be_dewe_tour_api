@@ -7,9 +7,16 @@ import (
 	"dumbmerch/repository"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
+	"context"
+
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-playground/validator/v10"
+
+	// "github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
@@ -21,17 +28,11 @@ func HandlerTrip(TripRepository repository.TripRepository) *tripHandlers {
 	return &tripHandlers{TripRepository}
 }
 
-var path_file = "http://localhost:5000/uploads/"
-
 func (h *tripHandlers) GetAllTrip(c echo.Context) error {
 	trips, err := h.TripRepository.GetAllTrip()
 	// fmt.Println(trips)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
-	}
-
-	for i, p := range trips {
-		trips[i].Image = path_file + p.Image
 	}
 
 	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: trips})
@@ -48,13 +49,6 @@ func (h *tripHandlers) GetTrip(c echo.Context) error {
 }
 
 func (h *tripHandlers) CreateTrip(c echo.Context) error {
-	// if you want to use request body raw json
-	// request := new(tripdto.CreateTripRequest)
-	// if err := c.Bind(request); err != nil {
-	// 	return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
-	// }
-
-	// if you want to use request body form-data
 	dataFile := c.Get("dataFile").(string)
 	fmt.Println("This is data file", dataFile)
 
@@ -85,11 +79,23 @@ func (h *tripHandlers) CreateTrip(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}
 
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
+
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+	resp, err := cld.Upload.Upload(ctx, dataFile, uploader.UploadParams{Folder: "dewetour"})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	// userLogin := c.Get("userLogin")
 	// userId := userLogin.(jwt.MapClaims)["id"].(float64)
 
 	idCountry, _ := h.TripRepository.GetCountryByID(request.CountryID)
-	fmt.Println(idCountry)
+	// fmt.Println(idCountry)
 
 	trip := models.Trip{
 		Title:     request.Title,
@@ -106,7 +112,7 @@ func (h *tripHandlers) CreateTrip(c echo.Context) error {
 		Price:          request.Price,
 		Quota:          request.Quota,
 		Description:    request.Description,
-		Image:          dataFile,
+		Image:          resp.SecureURL,
 		// UserId:         int(userId),
 	}
 
@@ -121,6 +127,8 @@ func (h *tripHandlers) CreateTrip(c echo.Context) error {
 }
 
 func (h *tripHandlers) UpdateTrip(c echo.Context) error {
+	var err error
+	dataFile := c.Get("dataFile").(string)
 	// take Update trip response
 	request := new(tripdto.UpdateTripRequest)
 	if err := c.Bind(&request); err != nil {
@@ -136,19 +144,20 @@ func (h *tripHandlers) UpdateTrip(c echo.Context) error {
 
 	country, _ := h.TripRepository.GetCountryByID(request.CountryID)
 
-	// modelCountry := models.CountryResponse{
-	// 	ID:   0,
-	// 	Name: "",
-	// }
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
+
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+	resp, err := cld.Upload.Upload(ctx, dataFile, uploader.UploadParams{Folder: "dewetour"})
 
 	if request.Title != "" {
 		trip.Title = request.Title
 	}
 
 	trip.Country = country
-	// if request.Country != modelCountry {
-	// 	trip.Country = request.Country
-	// }
+
 	if request.Acommodation != "" {
 		trip.Acommodation = request.Acommodation
 	}
@@ -179,7 +188,9 @@ func (h *tripHandlers) UpdateTrip(c echo.Context) error {
 	// if request.Image != "" {
 	// 	trip.Image = request.Image
 	// }
-	trip.Image = path_file + trip.Image
+	if request.Image != "" {
+		trip.Image = resp.SecureURL
+	}
 
 	data, err := h.TripRepository.UpdateTrip(trip)
 	if err != nil {
